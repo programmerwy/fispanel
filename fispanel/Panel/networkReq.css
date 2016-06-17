@@ -1,0 +1,33 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  padding: 20px;
+}
+
+button {
+  margin: 0 10px;
+}
+
+ul, ol, li, a {
+  list-style: none;
+  text-decoration: none;
+}
+
+#list li {
+  background: #FFF;
+  line-height: 2;
+  margin: 0;
+  transition: 0.5s;
+}
+
+#list li:nth-of-type(2n) {
+  background: #EEE;
+}
+
+#list li:hover {
+  background: #DDEEFF;
+  transition: 0;
+}
