@@ -1,3 +1,10 @@
+/*
+ * @copyright fe@zuoyebang.com
+ * 
+ * @description  // 本页面用于创建devtools panel
+ *               // 并担任panel与background通信的代理
+ */
+ 
 chrome.devtools.panels.create("fisPanel",
   "icon.png",
   "Panel/networkReq.html",

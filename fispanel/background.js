@@ -1,5 +1,19 @@
+/*
+ * @copyright fe@zuoyebang.com
+ * 
+ * @description  // 本页面用于通过devtools.js代理与networkReq panel通信
+ *               // 主要用来接收参数，进行文件跨域传输
+ *               // 文件会部署到测试机特定（指定）目录，方便后续打包行为
+ *               // 目录结构：- html文件名
+ *               //           - 资源目录
+ *               //             - 资源
+ *               //           - 资源目录
+ *               //             - 资源
+ */
+
 var ports = [],
-  test4 = 'http://test4.afpai.com/fisreceiver.php';
+  test4 = 'http://test4.afpai.com/fisreceiver.php',
+  excludeUrl = ['http://www.zybang.com/napi/stat/addnotice'];  // url.origin + url.pathname
   // reciever = 'http://127.0.0.1/fisreceiver.php';
 
 var sendToTest04 = sendFile.bind(null, test4);
@@ -33,25 +47,29 @@ function notifyDevtools(msg) {
 }
 
 function getFileAsync(resource, callback) {
-  var blob = null;
-  var xhr = new XMLHttpRequest(); 
-  xhr.responseType = 'blob';//force the HTTP response, response-type header to be blob
-  xhr.onload = function() {
-    var pathname = urlParser(resource.url).pathname;
-    blob = xhr.response;//xhr.response is now a blob object
-    var file = new File([blob], pathname);
-    if(callback && typeof callback === 'function') {
-      callback.call(null, {
-        to: pathname,
-        file: file
-      });
+  var urlObj = urlParser(resource.url);
+  if(~excludeUrl.indexOf(urlObj.origin + urlObj.pathname)) {
+    var blob = null;
+    var xhr = new XMLHttpRequest(); 
+    xhr.responseType = 'blob';//force the HTTP response, response-type header to be blob
+    xhr.onload = function() {
+      //添加自定义目录结构
+      var pathname = urlObj.pathname;
+      blob = xhr.response;//xhr.response is now a blob object
+      var file = new File([blob], pathname);
+      if(callback && typeof callback === 'function') {
+        callback.call(null, {
+          to: resource.type == 'document' ? (pathname ? (pathname + '.html') : 'index.html') : pathname,
+          file: file
+        });
+      }
     }
+    xhr.onerror = function() {
+      alert('getFile error');
+    }
+    xhr.open('GET', url);
+    xhr.send();
   }
-  xhr.onerror = function() {
-    alert('getFile error');
-  }
-  xhr.open('GET', url);
-  xhr.send();
 }
 
 function sendFile(target, form) {
@@ -67,7 +85,7 @@ function sendFile(target, form) {
 
 function urlParser(url) {
   return {
-    origin: /http:\/\/[^\/]+/.exec(url)[0],
-    pathname: /http:\/\/[^\/]+((?:\/[^\/\?\&#@!]+)+)/.exec(url)[1]
+    origin: /http(?:s?):\/\/[^\/]+/.exec(url)[0],
+    pathname: /http(?:s?):\/\/[^\/]+((?:\/[^\/\?\&#@!]+)+)/.exec(url)[1]
   }
 }

@@ -1,3 +1,9 @@
+/*
+ * @copyright fe@zuoyebang.com
+ * 
+ * @description  // 本页面用于获取页面所有网络请求，并将结果交付background处理
+ *
+ */
 
 var container = document.querySelector('#list'),
   resources = null;
