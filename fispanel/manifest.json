@@ -1,11 +1,13 @@
 {
   "manifest_version": 2,
-  "name": "fis activity",
+  "name": "fis panel",
   "description": "This extension demonstrates a browser action with kittens.",
   "version": "1.0",
   "devtools_page": "devtools.html",
+  "background": {
+    "scripts": ["background.js"]
+  },
   "permissions": [
-    "downloads",
-    "activeTab"
+    "http://*/"
   ]
 }
