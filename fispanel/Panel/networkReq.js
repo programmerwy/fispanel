@@ -19,7 +19,7 @@ function initEvents() {
     addEvt('#push', 'click', function() {
       // No need to check for the existence of `respond`, because
       // the panel can only be clicked when it's visible...
-      post(res);
+      post(resFilter(res));
     });
   });
 }
@@ -63,4 +63,14 @@ function updateUI(list) {
   list.forEach(function(item) {
     container.appendChild(createRow(item));
   });
+}
+
+/*
+ * 过滤掉插件等非寄主页面资源
+ */
+function resFilter(resources) {
+  var array = resources.filter(function(item) {
+    return /http(?:s?):\/\//.test(item.url);
+  });
+  return array;
 }
