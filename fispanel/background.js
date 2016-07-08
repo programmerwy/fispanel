@@ -13,7 +13,7 @@
  */
 
 var ports = [],
-  test4 = 'http://test4.afpai.com/fisreceiver.php',
+  test4 = 'http://test4.afpai.com/actReceiver.php',
   CUSTOMTARGET = 'mytopic_test',
   excludeUrl = ['http://www.zybang.com/napi/stat/addnotice'];  // url.origin + url.pathname
   // reciever = 'http://127.0.0.1/fisreceiver.php';
@@ -33,8 +33,12 @@ chrome.runtime.onConnect.addListener(function(port) {
 
   port.onMessage.addListener(function(msg) {
     // Received message from devtools.
-    msg.forEach(function(resource, index) { 
-      getFileAsync(resource, sendToTest04);
+    msg.forEach(function(resource, index) {
+      try {
+        getFileAsync(resource, sendToTest04);
+      } catch(e) {
+        notifyDevtools({url: JSON.stringify(e)});
+      }
       notifyDevtools({url: urlProcesser(resource, CUSTOMTARGET)});
     });
   });
@@ -49,10 +53,12 @@ function notifyDevtools(msg) {
 
 function getFileAsync(resource, callback) {
   var urlObj = urlParser(resource.url);
-  if(~excludeUrl.indexOf(urlObj.origin + urlObj.pathname)) {
+
+  if(!~excludeUrl.indexOf(urlObj.origin + urlObj.pathname)) {
     var blob = null;
     var xhr = new XMLHttpRequest(); 
     xhr.responseType = 'blob';  //force the HTTP response, response-type header to be blob
+    
     xhr.onload = function() {
       //添加自定义目录结构
       var pathname = urlObj.pathname;
@@ -68,44 +74,53 @@ function getFileAsync(resource, callback) {
     xhr.onerror = function() {
       alert('getFile error');
     }
-    xhr.open('GET', url);
+    xhr.open('GET', resource.url);
     xhr.send();
   }
 }
 
 function sendFile(target, form) {
-  // var formData = new FormData(),
-  //   sendXHR = new XMLHttpRequest();
-  // formData.append('to', form.to);
-  // formData.append('file', form.file);
-  // sendXHR.onprogress = function(progress) {
-  // };
-  // sendXHR.open('POST', target);
-  // sendXHR.send(formData);
+  var formData = new FormData(),
+    sendXHR = new XMLHttpRequest();
+  formData.append('to', form.to);
+  formData.append('file', form.file);
+  sendXHR.onprogress = function(progress) {
+    // notifyDevtools({url: 'progress:' + JSON.stringify(progress)});
+  };
+  sendXHR.onload = function() {
+    notifyDevtools({url: 'succ: ' + form.to});
+  }
+  sendXHR.onerror = function() {
+    notifyDevtools({url: 'err: ' + form.to});
+  }
+  sendXHR.open('POST', target);
+  sendXHR.send(formData);
 }
 
 /*
  * 将url加工成特定url(默认静态资源在static目录下)
  * customTarget
- * http://www.zybang.com -> static/customTarget/index.html
- * http://www.zybang.com/res_name -> static/customTarget/res_name.html
- * http://www.zybang.com/static/path/res_name -> static/customTarget/res_name.html
- * http://www.zybang.com/static/path/res_name.js -> static/customTarget/path/res_name.js
+ * 由于receiver在server的webroot目录下，所以这里加工成如下相对路径
+ * http://www.zybang.com -> static/activity-push/customTarget/index.html
+ * http://www.zybang.com/res_name -> static/activity-push/customTarget/static/res_name.html
+ * http://www.zybang.com/static/path/res_name -> static/activity-push/customTarget/static/res_name.html
+ * http://www.zybang.com/static/path/res_name.js -> static/activity-push/customTarget/static/path/res_name.js
  *
  */
 function urlProcesser(resource, customTarget) {
+  var PATH = 'static/activity-push/';
   var urlObj = urlParser(resource.url),
-    url = null;
+    url = PATH;
 
   var resName = /[^\/]+[^\/]$/.exec(urlObj.pathname);
   //document
   if(resource.type === 'document') {
     resName = resName ? resName[0] : 'index.html';
-    url = '/static/' + customTarget + '/' + resName;
+    url += customTarget + '/' + resName + '.html';
 
   //other type(image/js/css)
   } else {
-    url = urlObj.pathname.replace(/(static)/, '$1/' + customTarget);
+    url += urlObj.pathname.replace(/(\/static)/, customTarget + '$1');
   }
   return url;
 }

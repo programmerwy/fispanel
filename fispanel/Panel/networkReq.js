@@ -20,6 +20,7 @@ function initEvents() {
       // No need to check for the existence of `respond`, because
       // the panel can only be clicked when it's visible...
       post(resFilter(res));
+      // post([{url: 'http://127.0.0.1:8080/static/common/js/m-mod.js', type: 'js'}]);
     });
   });
 }
