@@ -1,8 +1,10 @@
 /*
- * @copyright fe@zuoyebang.com
- * 
- * @description  // 本页面用于创建devtools panel
- *               // 并担任panel与background通信的代理
+ * Copyright (c) 2014-2016 fe@zuoyebang.com, All rights reseved.
+ * @fileoverview 插件入口页
+ * @author wangyan01 | wangyan01@zuoyebang.com
+ * @version 1.0 | 2016-07-09 | wangyan01    // 初始版本。
+ *                                          // 创建devtools panel
+ *                                          // 负责panel与background通信的代理
  */
  
 chrome.devtools.panels.create("fisPanel",

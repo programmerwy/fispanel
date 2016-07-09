@@ -1,8 +1,10 @@
 /*
- * @copyright fe@zuoyebang.com
- * 
- * @description  // 本页面用于获取页面所有网络请求，并将结果交付background处理
- *
+ * Copyright (c) 2014-2016 fe@zuoyebang.com, All rights reseved.
+ * @fileoverview 面板页
+ * @author wangyan01 | wangyan01@zuoyebang.com
+ * @version 1.0 | 2016-07-09 | wangyan01    // 初始版本。
+ *                                          // 获取页面所有网络请求，并将结果交付background处理
+ *                                          // 负责panel与background通信的代理
  */
 
 var container = document.querySelector('#list'),

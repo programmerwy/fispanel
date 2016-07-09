@@ -1,22 +1,25 @@
 /*
- * @copyright fe@zuoyebang.com
- * 
- * @description  // 本页面用于通过devtools.js代理与networkReq panel通信
- *               // 主要用来接收参数，进行文件跨域传输
- *               // 文件会部署到测试机特定（指定）目录，方便后续打包行为
- *               // 目录结构：- html文件名
- *               //             - .html
- *               //             - 资源目录
- *               //               - 资源
- *               //             - 资源目录
- *               //               - 资源
+ * Copyright (c) 2014-2016 fe@zuoyebang.com, All rights reseved.
+ * @fileoverview 与networkReq panel页的通信页面
+ * @author wangyan01 | wangyan01@zuoyebang.com
+ * @version 1.0 | 2016-07-09 | wangyan01    // 初始版本。
+ *                                          // 将网络请求（静态资源以及document）转化成file，部署到测试环境。
+ *                                          // 通过actReceiver（代码同fisreceiver）部署，静态资源部署路径与fis部署测试机路径一致
+ *                                          // 转化document成 .html文件部署到/static/customeTarget目录中
+ *
+ * @version 1.1 | 2016-07-09 | wangyan01    // 待完成
+ *                                          // 通知服务器打包，并获取包路径用于cms上传（）
  */
 
 var ports = [],
   test4 = 'http://test4.afpai.com/actReceiver.php',
   CUSTOMTARGET = 'mytopic_test',
+  deploy = {
+    from: 'static',
+    to: '/home/homework/webroot'
+  },
   excludeUrl = ['http://www.zybang.com/napi/stat/addnotice'];  // url.origin + url.pathname
-  // reciever = 'http://127.0.0.1/fisreceiver.php';
+
 var sendToTest04 = sendFile.bind(null, test4);
 
 chrome.runtime.onConnect.addListener(function(port) {
@@ -34,12 +37,8 @@ chrome.runtime.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(msg) {
     // Received message from devtools.
     msg.forEach(function(resource, index) {
-      try {
-        getFileAsync(resource, sendToTest04);
-      } catch(e) {
-        notifyDevtools({url: JSON.stringify(e)});
-      }
-      notifyDevtools({url: urlProcesser(resource, CUSTOMTARGET)});
+      getFileAsync(resource, sendToTest04);
+      // notifyDevtools({url: urlProcesser(resource, CUSTOMTARGET)});
     });
   });
 });
@@ -98,29 +97,24 @@ function sendFile(target, form) {
 }
 
 /*
- * 将url加工成特定url(默认静态资源在static目录下)
- * customTarget
- * 由于receiver在server的webroot目录下，所以这里加工成如下相对路径
- * http://www.zybang.com -> static/activity-push/customTarget/index.html
- * http://www.zybang.com/res_name -> static/activity-push/customTarget/static/res_name.html
- * http://www.zybang.com/static/path/res_name -> static/activity-push/customTarget/static/res_name.html
- * http://www.zybang.com/static/path/res_name.js -> static/activity-push/customTarget/static/path/res_name.js
- *
+ * 部署路径参照fis部署静态资源到相应测试机路径
+ * 将html文件部署到/static/customTarget
  */
 function urlProcesser(resource, customTarget) {
-  var PATH = 'static/activity-push/';
   var urlObj = urlParser(resource.url),
-    url = PATH;
+    url = deploy.to;
 
   var resName = /[^\/]+[^\/]$/.exec(urlObj.pathname);
   //document
   if(resource.type === 'document') {
     resName = resName ? resName[0] : 'index.html';
-    url += customTarget + '/' + resName + '.html';
+    // url += customTarget + '/' + resName + '.html';
+    url += '/static/' + customTarget + resName + '.html';
 
   //other type(image/js/css)
   } else {
-    url += urlObj.pathname.replace(/(\/static)/, customTarget + '$1');
+    // url += urlObj.pathname.replace(/(\/static)/, customTarget + '$1');
+    url += urlObj.pathname;
   }
   return url;
 }
