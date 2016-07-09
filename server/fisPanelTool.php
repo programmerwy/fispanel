@@ -24,7 +24,7 @@ if($_POST['method']) {
     case 'pkg':
       $pathArray = $_POST['pathArray'];
       gatherResource($pathArray, '/static');
-
+      echo getTargz()
       break;
     default:
       # code...
