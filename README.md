@@ -8,7 +8,7 @@ fisp工程自动化简化方案，为了解决基于smarty模板的活动页上�
 
 * 下载release版本到本地
 
-  git clone https://github.com/ShuolBDe/fispanel.git
+  `git clone https://github.com/ShuolBDe/fispanel.git`
 
 * 安装组件
 
