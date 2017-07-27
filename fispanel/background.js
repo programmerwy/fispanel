@@ -12,15 +12,16 @@
  */
 
 var ports = [],
-  test4 = 'http://test4.afpai.com/actReceiver.php',
-  CUSTOMTARGET = 'mytopic_test',
+  receiver = 'actReceiver.php',
+  CUSTOMTARGET = null,
   deploy = {
     from: 'static',
     to: '/home/homework/webroot'
   },
-  excludeUrl = ['http://www.zybang.com/napi/stat/addnotice'];  // url.origin + url.pathname
-
-var sendToTest04 = sendFile.bind(null, test4);
+  excludeUrl = [
+    'http://www.zybang.com/napi/stat/addnotice',
+    'http://notice.zuoyebang.cc/napi/stat/addnotice'
+  ]; // url.origin + url.pathname
 
 chrome.runtime.onConnect.addListener(function(port) {
   if (port.name !== "devtools") {
@@ -34,10 +35,13 @@ chrome.runtime.onConnect.addListener(function(port) {
     if (i !== -1) ports.splice(i, 1);
   });
 
-  port.onMessage.addListener(function(msg) {
+  port.onMessage.addListener(function(conf) {
     // Received message from devtools.
-    msg.forEach(function(resource, index) {
-      getFileAsync(resource, sendToTest04);
+    receiver = conf.env + receiver,
+      CUSTOMTARGET = conf.path;
+
+    conf.msg.forEach(function(resource, index) {
+      getFileAsync(resource, sendFile.bind(null, receiver));
       // notifyDevtools({url: urlProcesser(resource, CUSTOMTARGET)});
     });
   });
@@ -53,17 +57,17 @@ function notifyDevtools(msg) {
 function getFileAsync(resource, callback) {
   var urlObj = urlParser(resource.url);
 
-  if(!~excludeUrl.indexOf(urlObj.origin + urlObj.pathname)) {
+  if (!~excludeUrl.indexOf(urlObj.origin + urlObj.pathname)) {
     var blob = null;
-    var xhr = new XMLHttpRequest(); 
-    xhr.responseType = 'blob';  //force the HTTP response, response-type header to be blob
-    
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = 'blob'; //force the HTTP response, response-type header to be blob
+
     xhr.onload = function() {
       //添加自定义目录结构
       var pathname = urlObj.pathname;
-      blob = xhr.response;    //xhr.response is now a blob object
+      blob = xhr.response; //xhr.response is now a blob object
       var file = new File([blob], pathname);
-      if(callback && typeof callback === 'function') {
+      if (callback && typeof callback === 'function') {
         callback.call(null, {
           to: urlProcesser(resource, CUSTOMTARGET),
           file: file
@@ -87,10 +91,10 @@ function sendFile(target, form) {
     // notifyDevtools({url: 'progress:' + JSON.stringify(progress)});
   };
   sendXHR.onload = function() {
-    notifyDevtools({url: 'succ: ' + form.to});
+    notifyDevtools({ url: 'succ: ' + form.to });
   }
   sendXHR.onerror = function() {
-    notifyDevtools({url: 'err: ' + form.to});
+    notifyDevtools({ url: 'err: ' + form.to });
   }
   sendXHR.open('POST', target);
   sendXHR.send(formData);
@@ -98,7 +102,7 @@ function sendFile(target, form) {
 
 /*
  * 部署路径参照fis部署静态资源到相应测试机路径
- * 将html文件部署到/static/customTarget
+ * 将html文件部署到 /static 或 /customTarget
  */
 function urlProcesser(resource, customTarget) {
   var urlObj = urlParser(resource.url),
@@ -106,14 +110,12 @@ function urlProcesser(resource, customTarget) {
 
   var resName = /[^\/]+[^\/]$/.exec(urlObj.pathname);
   //document
-  if(resource.type === 'document') {
+  if (resource.type === 'document') {
     resName = resName ? resName[0] : 'index.html';
-    // url += customTarget + '/' + resName + '.html';
-    url += '/static/' + customTarget + resName + '.html';
+    url += customTarget + '/' + resName + '.html';
 
-  //other type(image/js/css)
+    //other type(image/js/css)
   } else {
-    // url += urlObj.pathname.replace(/(\/static)/, customTarget + '$1');
     url += urlObj.pathname;
   }
   return url;

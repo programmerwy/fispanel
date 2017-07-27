@@ -8,14 +8,34 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>测试用</title>
   <link rel="stylesheet" href="networkReq.css">
 </head>
 <body>
-  <h2>获取资源列表</h2>
-  <button id="refresh">refresh</button>
-  <button id="clear">clear</button>
-  <button id="push">push</button>
+  <h2>资源列表</h2>
+  <div class="env">
+    <span>测试环境：</span>
+    <select id="env">
+      <option value="http://test1.zuoyebang.cc/">test1</option>
+      <option value="http://test2.zuoyebang.cc/">test2</option>
+      <option value="http://test3.zuoyebang.cc/">test3</option>
+      <option value="http://test4.zuoyebang.cc/" selected>test4</option>
+      <option value="http://test5.zuoyebang.cc/">test5</option>
+    </select>
+  </div>
+
+  <div class="path">
+    <span>html路径：</span>
+    <input type="text" id="path" placeholder="应同线上cms的部署路径，default: /static" data-value="/static">
+  </div>
+
+  <div class="btns">
+    <button id="refresh">refresh</button>
+    <button id="clear">clear</button>
+    <button id="push">push</button>
+  </div>
+
   <ul id="list">
     
   </ul>

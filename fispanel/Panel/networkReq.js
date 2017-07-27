@@ -5,10 +5,10 @@
  * @version 1.0 | 2016-07-09 | wangyan01    // 初始版本。
  *                                          // 获取页面所有网络请求，并将结果交付background处理
  *                                          // 负责panel与background通信的代理
+ * @version 1.1 | 2017-07-27 | wangyan01    // 优化代码。
  */
 
-var container = document.querySelector('#list'),
-  resources = null;
+var container = document.querySelector('#list');
 
 !function() {
   window.addEventListener('load', initEvents);
@@ -19,10 +19,15 @@ function initEvents() {
   addEvt('#clear', 'click', clearList);
   chrome.devtools.inspectedWindow.getResources(function(res) {
     addEvt('#push', 'click', function() {
+      var eleEnv = document.getElementById('env'),
+        elePath = document.getElementById('path');
       // No need to check for the existence of `respond`, because
       // the panel can only be clicked when it's visible...
-      post(resFilter(res));
-      // post([{url: 'http://127.0.0.1:8080/static/common/js/m-mod.js', type: 'js'}]);
+      post({
+        msg: resFilter(res),
+        env: eleEnv.value,
+        path: elePath.value || elePath.getAttribute('data-value')
+      });
     });
   });
 }
@@ -38,10 +43,12 @@ function addEvt(sel, evtName, callback) {
 function createRow(url) {
   var li = document.createElement('li'),
     link = document.createElement('a');
-  '<a href="' + url + '" target="_blank">' + url + '</a>'
+
+  // '<a href="' + url + '" target="_blank">' + url + '</a>'
   link.href = url,
     link.target = '_blank',
     link.innerHTML = url;
+
   li.appendChild(link);
   return li;
 }
@@ -53,12 +60,7 @@ function clearList() {
 function refreshList() {
   clearList();
   chrome.devtools.inspectedWindow.getResources(function(res) {
-    resources = res;
-    var urlList = new Array();
-    res.forEach(function(item, index) {
-      /http(?:s?):\/\//.test(item.url) && urlList.push(item.url);
-    });
-    updateUI(urlList.sort());
+    updateUI(resFilter(res).map((item) => item.url).sort());
   });
 }
 
@@ -72,8 +74,7 @@ function updateUI(list) {
  * 过滤掉插件等非寄主页面资源
  */
 function resFilter(resources) {
-  var array = resources.filter(function(item) {
-    return /http(?:s?):\/\//.test(item.url);
-  });
-  return array;
+  return resources.filter(function(item) {
+    return /http(?:s?):\/\//.test(item.url) && !/hybridaction/.test(item.url);
+  })
 }

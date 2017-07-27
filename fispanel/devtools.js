@@ -7,7 +7,7 @@
  *                                          // 负责panel与background通信的代理
  */
  
-chrome.devtools.panels.create("fisPanel",
+chrome.devtools.panels.create("fispanel",
   "icon.png",
   "Panel/networkReq.html",
   function(panel) {

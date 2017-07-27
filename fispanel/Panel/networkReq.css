@@ -31,3 +31,16 @@ ul, ol, li, a {
   background: #DDEEFF;
   transition: none;
 }
+
+.env, .path {
+  margin: 10px 0;
+  display: inline-block;
+}
+
+.path {
+  margin-left: 10px;
+}
+
+.path input {
+  width: 300px;
+}
