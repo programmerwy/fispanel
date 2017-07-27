@@ -4,6 +4,10 @@
 
 fisp工程自动化简化方案，为了解决基于smarty模板的活动页上线问题，使用chrome插件形式，分别处理部署测试机以及上线cms系统的问题
 
+### NOTICE
+
+这里隐藏了几个关键文件，只有内部可访问，需要使用组件请联系我: wangyan01@zuoyebang.com
+
 #### GET START
 
 * 下载release版本到本地
