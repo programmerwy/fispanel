@@ -1,2 +1,4 @@
 !.gitignore
 /server
+/fispanel/bg_conf.js
+/fispanel/Panel/conf.js

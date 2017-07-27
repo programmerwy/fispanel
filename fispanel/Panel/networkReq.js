@@ -8,13 +8,15 @@
  * @version 1.1 | 2017-07-27 | wangyan01    // 优化代码。
  */
 
-var container = document.querySelector('#list');
+var container = document.querySelector('#list'),
+  option = '<option value="$value">$key</option>';
 
 !function() {
   window.addEventListener('load', initEvents);
 }();
 
 function initEvents() {
+  initSelect();
   addEvt('#refresh', 'click', refreshList);
   addEvt('#clear', 'click', clearList);
   chrome.devtools.inspectedWindow.getResources(function(res) {
@@ -30,6 +32,14 @@ function initEvents() {
       });
     });
   });
+}
+
+function initSelect() {
+  var html = '';
+  for(var prop in conf.tests) {
+    html += option.replace(/\$value/, conf.tests[prop]).replace(/\$key/, prop);
+  }
+  document.getElementById('env').innerHTML = html;
 }
 
 function response(msg) {

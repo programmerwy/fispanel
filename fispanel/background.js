@@ -11,17 +11,7 @@
  *                                          // 通知服务器打包，并获取包路径用于cms上传（）
  */
 
-var ports = [],
-  receiver = 'actReceiver.php',
-  CUSTOMTARGET = null,
-  deploy = {
-    from: 'static',
-    to: '/home/homework/webroot'
-  },
-  excludeUrl = [
-    'http://www.zybang.com/napi/stat/addnotice',
-    'http://notice.zuoyebang.cc/napi/stat/addnotice'
-  ]; // url.origin + url.pathname
+// import {ports, receiver, CUSTOMTARGET, deploy, excludeUrl} from './bg_conf';
 
 chrome.runtime.onConnect.addListener(function(port) {
   if (port.name !== "devtools") {
