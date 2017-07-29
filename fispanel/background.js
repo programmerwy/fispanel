@@ -12,6 +12,7 @@
  */
 
 // import {ports, receiver, CUSTOMTARGET, deploy, excludeUrl} from './bg_conf';
+var receiver = null;
 
 chrome.runtime.onConnect.addListener(function(port) {
   if (port.name !== "devtools") {
@@ -27,7 +28,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 
   port.onMessage.addListener(function(conf) {
     // Received message from devtools.
-    receiver = conf.env + receiver,
+    receiver = conf.env + receiverPHP,
       CUSTOMTARGET = conf.path;
 
     conf.msg.forEach(function(resource, index) {
